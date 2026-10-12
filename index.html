@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyX 工具箱</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  .tool-card { transition: all .2s; }
+  .tool-card:hover { transform: translateY(-3px); }
+</style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
+
+<header class="max-w-5xl mx-auto px-6 pt-12 pb-8">
+  <h1 class="text-3xl font-bold mb-2">🧰 MyX 工具箱</h1>
+  <p class="text-gray-400">常用在线小工具，打开即用，不用装软件</p>
+</header>
+
+<main class="max-w-5xl mx-auto px-6 pb-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="tools">
+
+    <!-- 密码生成器 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">🔐 密码生成器</h2>
+      <div class="flex gap-2 mb-3">
+        <input type="number" id="pwdLen" value="16" min="4" max="64" class="w-20 bg-gray-700 rounded px-2 py-1 text-sm">
+        <button onclick="genPwd()" class="bg-purple-600 px-3 py-1 rounded text-sm hover:bg-purple-700">生成</button>
+      </div>
+      <div class="bg-gray-900 rounded p-3 font-mono text-sm break-all" id="pwdOut">-</div>
+    </div>
+
+    <!-- 颜色转换 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">🎨 颜色转换</h2>
+      <div class="flex gap-2 mb-2">
+        <input type="color" id="colorPick" value="#8b5cf6" class="w-12 h-8 rounded">
+        <input type="text" id="colorHex" value="#8b5cf6" class="flex-1 bg-gray-700 rounded px-2 py-1 text-sm font-mono" oninput="hexToRgb()">
+      </div>
+      <div class="text-sm text-gray-400 font-mono" id="colorRgb">RGB(139, 92, 246)</div>
+    </div>
+
+    <!-- 时间戳转换 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">⏰ 时间戳转换</h2>
+      <div class="flex gap-2 mb-2">
+        <input type="number" id="tsInput" placeholder="输入时间戳" class="flex-1 bg-gray-700 rounded px-2 py-1 text-sm font-mono">
+        <button onclick="tsToDate()" class="bg-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-700">转换</button>
+      </div>
+      <div class="text-sm text-gray-400 font-mono" id="tsOut">-</div>
+      <button onclick="nowTs()" class="text-xs text-purple-400 mt-2 hover:underline">现在的时间戳</button>
+    </div>
+
+    <!-- JSON 格式化 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">📋 JSON 格式化</h2>
+      <textarea id="jsonIn" rows="3" placeholder='{"a":1,"b":[1,2,3]}' class="w-full bg-gray-700 rounded p-2 text-sm font-mono mb-2"></textarea>
+      <div class="flex gap-2">
+        <button onclick="fmtJson()" class="bg-green-600 px-3 py-1 rounded text-sm hover:bg-green-700">格式化</button>
+        <button onclick="minJson()" class="bg-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-500">压缩</button>
+      </div>
+      <div class="text-sm text-gray-400 font-mono mt-2 whitespace-pre-wrap" id="jsonOut">-</div>
+    </div>
+
+    <!-- 字数统计 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">📝 字数统计</h2>
+      <textarea id="textIn" rows="3" placeholder="粘贴文字..." class="w-full bg-gray-700 rounded p-2 text-sm mb-2" oninput="countText()"></textarea>
+      <div class="text-sm text-gray-400" id="textOut">字数: 0 · 字符: 0</div>
+    </div>
+
+    <!-- Base64 编解码 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">🔄 Base64 编解码</h2>
+      <textarea id="b64In" rows="2" placeholder="输入文本" class="w-full bg-gray-700 rounded p-2 text-sm font-mono mb-2"></textarea>
+      <div class="flex gap-2">
+        <button onclick="b64Enc()" class="bg-purple-600 px-3 py-1 rounded text-sm hover:bg-purple-700">编码</button>
+        <button onclick="b64Dec()" class="bg-gray-600 px-3 py-1 rounded text-sm hover:bg-gray-500">解码</button>
+      </div>
+      <div class="text-sm text-gray-400 font-mono mt-2 break-all" id="b64Out">-</div>
+    </div>
+
+    <!-- 二维码生成 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">▦ 二维码生成</h2>
+      <input type="text" id="qrText" placeholder="输入链接或文字" class="w-full bg-gray-700 rounded px-2 py-1 text-sm mb-2">
+      <button onclick="genQr()" class="bg-green-600 px-3 py-1 rounded text-sm hover:bg-green-700 mb-2">生成</button>
+      <div class="text-center"><img id="qrImg" class="mx-auto bg-white p-2 rounded" width="150"></div>
+    </div>
+
+    <!-- 单位换算 -->
+    <div class="tool-card bg-gray-800/50 rounded-2xl p-5 backdrop-blur">
+      <h2 class="font-semibold text-lg mb-3">📏 长度换算</h2>
+      <div class="flex gap-2 items-center mb-2">
+        <input type="number" id="lenIn" value="1" class="w-24 bg-gray-700 rounded px-2 py-1 text-sm" oninput="convertLen()">
+        <span class="text-sm text-gray-400">米 =</span>
+        <span id="lenOut" class="text-sm font-mono">100 厘米 / 3.28 英尺</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="border-t border-gray-800 py-6 text-center text-gray-600 text-sm">
+  © 2026 MyX 工具箱
+</footer>
+
+<script>
+function genPwd() {
+  const len = +document.getElementById('pwdLen').value;
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('pwdOut').textContent = out;
+  navigator.clipboard?.writeText(out);
+}
+function hexToRgb() {
+  const hex = document.getElementById('colorHex').value.replace('#','');
+  if (hex.length !== 6) return;
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  document.getElementById('colorRgb').textContent = `RGB(${r}, ${g}, ${b})`;
+  document.getElementById('colorPick').value = '#'+hex;
+}
+document.getElementById('colorPick').oninput = e => {
+  document.getElementById('colorHex').value = e.target.value;
+  hexToRgb();
+};
+function tsToDate() {
+  const ts = +document.getElementById('tsInput').value;
+  const d = new Date(ts < 1e12 ? ts*1000 : ts);
+  document.getElementById('tsOut').textContent = d.toLocaleString('zh-CN');
+}
+function nowTs() {
+  document.getElementById('tsInput').value = Math.floor(Date.now()/1000);
+  tsToDate();
+}
+function fmtJson() {
+  try {
+    document.getElementById('jsonOut').textContent = JSON.stringify(JSON.parse(document.getElementById('jsonIn').value), null, 2);
+  } catch(e) { document.getElementById('jsonOut').textContent = 'JSON 格式错误'; }
+}
+function minJson() {
+  try {
+    document.getElementById('jsonOut').textContent = JSON.stringify(JSON.parse(document.getElementById('jsonIn').value));
+  } catch(e) { document.getElementById('jsonOut').textContent = 'JSON 格式错误'; }
+}
+function countText() {
+  const t = document.getElementById('textIn').value;
+  document.getElementById('textOut').textContent = `字数: ${t.replace(/\s/g,'').length} · 字符: ${t.length}`;
+}
+function b64Enc() {
+  document.getElementById('b64Out').textContent = btoa(unescape(encodeURIComponent(document.getElementById('b64In').value)));
+}
+function b64Dec() {
+  try {
+    document.getElementById('b64Out').textContent = decodeURIComponent(escape(atob(document.getElementById('b64In').value)));
+  } catch(e) { document.getElementById('b64Out').textContent = '解码失败'; }
+}
+function genQr() {
+  const t = encodeURIComponent(document.getElementById('qrText').value);
+  document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${t}`;
+}
+function convertLen() {
+  const m = +document.getElementById('lenIn').value;
+  document.getElementById('lenOut').textContent = `${(m*100).toFixed(1)} 厘米 / ${(m*3.28084).toFixed(2)} 英尺 / ${(m*1000).toFixed(0)} 毫米`;
+}
+genPwd();
+nowTs();
+convertLen();
+</script>
+
+</body>
+</html>
